@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Detective Conan Search</title>
+    <meta name="viewport" content="width=640">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #181c20;
+            color: #FAFAFA;
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 430px;
+            margin: 60px auto 0 auto;
+            background: #22282f;
+            border-radius: 16px;
+            box-shadow: 0 6px 32px rgba(0,0,0,0.3);
+            padding: 32px 20px 32px 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .search-section {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .search-input {
+            padding: 12px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            background: #1a2025;
+            color: #fff;
+            outline: none;
+            transition: box-shadow 0.15s;
+        }
+        .search-input:focus {
+            box-shadow: 0 0 0 2px #4183c4;
+        }
+        .error-msg {
+            color: #ff526a;
+            padding: 8px 0 0 4px;
+            display: none;
+            font-size: 0.97rem;
+        }
+        .results-area {
+            margin-top: 24px;
+        }
+        .result-item {
+            background: #232d36;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            cursor: pointer;
+            transition: background 0.18s;
+        }
+        .result-item:hover {
+            background: #2b3a47;
+        }
+        .result-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 2px 6px rgba(60,60,60,0.13);
+            border: 2px solid #4183c4;
+        }
+        .result-title {
+            font-size: 1.19rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #d7e3fc;
+        }
+        .episode-list {
+            margin-top: 30px;
+        }
+        .episode-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        .episode-list li {
+            background: #1c232a;
+            color: #d7e3fc;
+            padding: 12px 18px;
+            border-radius: 9px;
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .episode-list li.active {
+            background: #4183c4;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .episode-list li.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .video-section {
+            margin-top: 26px;
+            text-align: center;
+        }
+        @media (max-width: 650px) {
+            .container { padding: 16px 2vw; }
+            .video-section iframe { width: 95vw; height: 54vw; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Detective Conan Search</h1>
+        <div class="search-section">
+            <input id="searchInput" class="search-input" type="text" placeholder="Search for 'Detective Conan'..." autocomplete="off" />
+            <div id="errorMsg" class="error-msg">Only 'Detective Conan' is available.</div>
+        </div>
+        <div class="results-area" id="resultsArea"></div>
+        <div id="episodeArea"></div>
+        <div id="videoArea"></div>
+    </div>
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const errorMsg = document.getElementById('errorMsg');
+        const resultsArea = document.getElementById('resultsArea');
+        const episodeArea = document.getElementById('episodeArea');
+        const videoArea = document.getElementById('videoArea');
+
+        const DETECTIVE_CONAN_IMAGE = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBL1jq2wjUo_P_ib4AjlR1j8d2L5Cx4bFwJw&s";
+        const DETECTIVE_CONAN_VIDEO = `<iframe width="640" height="360" src="https://short.icu/p2S6XiQ4g" frameborder="0" scrolling="0" allowfullscreen></iframe>`;
+
+        // Show result for Detective Conan
+        function showConanResult() {
+            resultsArea.innerHTML = `
+                <div class="result-item" tabindex="0" onclick="window.handleDetectiveConanClick()">
+                    <img src="${DETECTIVE_CONAN_IMAGE}" alt="Detective Conan" class="result-img">
+                    <span class="result-title">Detective Conan</span>
+                </div>
+            `;
+            episodeArea.innerHTML = "";
+            videoArea.innerHTML = "";
+        }
+
+        // Show episode list, only 1 is active/clickable
+        function showEpisodeList() {
+            episodeArea.innerHTML = `
+                <div class="episode-list">
+                    <ul>
+                        <li class="active" tabindex="0" onclick="window.handleEpisodeClick(1)">1. Watch Episode</li>
+                        <li class="disabled">2. Coming Soon...</li>
+                    </ul>
+                </div>
+            `;
+            videoArea.innerHTML = "";
+        }
+
+        // Show the video and image url
+        function showVideoSection() {
+            videoArea.innerHTML = `
+                <div class="video-section">
+                    ${DETECTIVE_CONAN_VIDEO}
+                    <div style="margin-top: 15px; font-size: 0.98rem; color: #bcccdd;">
+                        <strong>Image URL:</strong><br>
+                        <a href="${DETECTIVE_CONAN_IMAGE}" target="_blank" style="color: #7fc7ff;">${DETECTIVE_CONAN_IMAGE}</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Click handlers are set globally for inline onclick
+        window.handleDetectiveConanClick = function() {
+            showEpisodeList();
+        }
+        window.handleEpisodeClick = function(num) {
+            if (num === 1) {
+                showVideoSection();
+            }
+        }
+
+        // Search logic
+        function handleSearch(e) {
+            if (e.key === "Enter") {
+                const val = searchInput.value.trim().toLowerCase();
+                if (val === "detective conan") {
+                    errorMsg.style.display = "none";
+                    showConanResult();
+                } else {
+                    errorMsg.style.display = "block";
+                    resultsArea.innerHTML = "";
+                    episodeArea.innerHTML = "";
+                    videoArea.innerHTML = "";
+                }
+            } else {
+                errorMsg.style.display = "none";
+            }
+        }
+
+        searchInput.addEventListener('keydown', handleSearch);
+
+        // Optional: auto focus input for good UX
+        window.onload = () => {
+            searchInput.focus();
+        }
+    </script>
+</body>
+</html>
